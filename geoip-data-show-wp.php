@@ -73,7 +73,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 
     function getGeoIpData($ip, $params){
-    $ip = '8.8.8.8';
         $result = '';
         if(filter_var($ip, FILTER_VALIDATE_IP)){
             $url = 'http://ip-api.com/php/' . $ip . '?lang='. $params['lang'];
