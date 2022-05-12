@@ -2,8 +2,8 @@
 
 /**
  * Plugin Name: Show geoip data
- * Description: Выводит геоданные пользователя по ip
- * Author:      Владимир Удачин
+ * Description: Show users geodata by ip
+ * Author:      Vladimir Udachin
  * Version:     1.0
  *
  * Requires PHP: 7.4
@@ -46,7 +46,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
     function setCookieVal($name, $value, $time = ''){
         if(!empty($name) && !empty($value)){
-            if(empty($time)) $time = strtotime('+30 days');
+            if(empty($time)) $time = strtotime('+1 day');
             setCookie($name, $value, $time);
         }
     }
