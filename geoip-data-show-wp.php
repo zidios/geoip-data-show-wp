@@ -27,20 +27,49 @@ if ( ! defined( 'ABSPATH' ) ) {
             'lang'  => 'en'
         ), $atts );
         $ip = getClientIp();
-
-        $result = getCookie($atts['show']);
-        if(empty($result)){
-            $result = getSessionVal($atts['show']);
+        $lastIP = !empty(getCookie('last_ip')) ? getCookie('last_ip') : (!empty(getSessionVal('last_ip')) ? getSessionVal('last_ip') : '' );
+        $res = getCookie($atts['show']);
+        if(empty($res) && $ip == $lastIP){
+            $res = getSessionVal($atts['show']);
         }
-        if(empty($result)){
-            $result = getGeoIpData($ip, $atts);
+        if((empty($res) && $ip == $lastIP) || $ip != $lastIP ){
+            $res = getGeoIpData($ip, $atts);
         } else {
-            setCookieVal($atts['show'], $result);
+            setCookieVal($atts['show'], $res);
         }
+        setCookieVal('last_ip', $ip);
+        setSessionVal('last_ip', $ip);
+        $id = "a" . bin2hex(random_bytes(5));
+        $result="
+            <span id=\"$id\"></span>            
+        
+        <script>
+        function ready$id() {
+            let valu = '';
+            let name = \"" . $atts['show'] . "\" + \"=\";
+            let ca = document.cookie.split(';');
+            for(let i = 0; i < ca.length; i++) {
+                let c = ca[i];
+                while (c.charAt(0) == ' ') {
+                c = c.substring(1);
+                }
+                if (c.indexOf(name) == 0) {
+                    valu = c.substring(name.length, c.length);
+                }
+            }
+            document.getElementById(\"$id\").innerHTML = valu;
+          }
+        
+          document.addEventListener(\"DOMContentLoaded\", ready$id);
+        </script>
+        ";
         return $result;
     }
 
     function getCookie($name){
+        return strip_tags($_COOKIE[$name]);
+    }
+    function checkCache($ip){
         return strip_tags($_COOKIE[$name]);
     }
 
@@ -79,6 +108,8 @@ if ( ! defined( 'ABSPATH' ) ) {
             $ch = curl_init();
             curl_setopt($ch, CURLOPT_URL, $url);
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
+            curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 2); 
+            curl_setopt($ch, CURLOPT_TIMEOUT, 2);
             $resp = curl_exec($ch);
             $resp = unserialize($resp);
             curl_close($ch);
@@ -102,7 +133,7 @@ if ( ! defined( 'ABSPATH' ) ) {
             $ip = $_SERVER['HTTP_X_FORWARDED_FOR'];
         } else {
             $ip = $_SERVER['REMOTE_ADDR'];
-        }
+        }        
         return $ip;
     }    
     add_action('init', 'showGeoipData');
