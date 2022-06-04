@@ -4,7 +4,7 @@
  * Plugin Name: Show geoip data
  * Description: Show users geodata by ip
  * Author:      Vladimir Udachin
- * Version:     1.0
+ * Version:     1.0.1
  *
  * Requires PHP: 7.4
  *
